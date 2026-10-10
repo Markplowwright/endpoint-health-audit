@@ -65,16 +65,39 @@ flowchart TD
 
 ## Results
 
-Placeholder. A sample report will be added after a verified run.
+```text
+Endpoint Health Audit
+Generated: 2026-10-10 14:52:50
+
+[OK]      macOS version: macOS 15.3 (24D2059)
+[OK]      Disk space: 124Gi available (67% free) on /System/Volumes/Data (warning under 15% free)
+[WARNING] FileVault: Off
+[OK]      Uptime: 10 days (warning over 14 days)
+[OK]      Load average: 2.15, 1.98, 2.05 (limit 10 CPUs)
+[WARNING] Pending updates: 1 available
+          * Label: macOS Sequoia 15.8.1-24H32
+
+Summary: 2 warning(s), 0 error(s)
+```
+
+FileVault was off on the test machine, and the audit flagged it as a WARNING.
+
+**Forced via environment override**
+
+| Override | What it proves |
+|---|---|
+| `UPTIME_WARN_DAYS=1` | `[WARNING] Uptime: 9 days (warning over 1 day)` |
+| `DISK_WARN_PCT=90` | `[WARNING] Disk space: 127Gi available (68% free) on /System/Volumes/Data (warning under 90% free)` |
+| `LOAD_CPU_LIMIT=1` | `[WARNING] Load average: 2.97, 2.91, 2.45 (limit 1 CPU (LOAD_CPU_LIMIT))` |
 
 ## Tested on
 
-Placeholder. macOS only. The Windows script is not implemented.
+macOS 15.3 (24D2059), macOS only. The Windows script is not implemented.
 
 ## Roadmap
 
 1. Windows PowerShell script with the same six checks: OS version, free space on the system drive, BitLocker, last boot time, processor load, and pending Windows updates. Fill in the Windows column in `docs/check-comparison.md`.
-2. A sample report and a Tested on line, using only output approved from a real run.
+2. Done: the sample report and Tested on line above are from a real macOS run.
 3. A GitHub Action that runs ShellCheck on `macos/health_audit.sh`.
 4. More posture checks: SIP, Gatekeeper, and the application firewall on macOS; Microsoft Defender, firewall profiles, and a pending reboot on Windows.
 5. Exit behavior for automation. This version exits 0 when the report file is written, even if it contains warnings, so a warning does not fail a scheduled job. A later change can exit non-zero when any `[WARNING]` or `[ERROR]` is present, once both platforms share that contract.
